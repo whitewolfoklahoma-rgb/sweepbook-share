@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SweepBook — Chimney Sweep Inspection &amp; Service Book</title>
+<style>
+:root{
+  --bg:#f6f2ec; --card:#ffffff; --ink:#2a2521; --muted:#7d7468;
+  --char:#37312b; --char2:#4a4238; --ember:#c2521e; --ember2:#e0692a;
+  --red:#b23a2e; --green:#2e6b34; --amber:#c98f12; --line:#e3dacb; --soft:#f1eadd;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{background:var(--bg); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; font-size:16px; line-height:1.45;}
+header.app{background:var(--char); color:#fff; padding:14px 16px 10px;}
+header.app .brand{font-size:24px; font-weight:800; letter-spacing:.2px;}
+header.app .brand .flame{color:var(--ember2);}
+header.app .tag{font-size:13px; opacity:.85; margin-top:2px;}
+nav.tabs{display:flex; overflow-x:auto; background:var(--char); padding:0 6px 8px; gap:4px; scrollbar-width:none;}
+nav.tabs::-webkit-scrollbar{display:none;}
+nav.tabs button{flex:0 0 auto; min-height:42px; padding:8px 14px; border:0; border-radius:20px; background:rgba(255,255,255,.14); color:#fff; font-size:15px; font-weight:600; cursor:pointer;}
+nav.tabs button.active{background:var(--ember); color:#fff;}
+main{max-width:980px; margin:0 auto; padding:14px 12px 40px;}
+h2.view-title{margin:4px 2px 12px; font-size:21px;}
+h3{margin:18px 2px 8px; font-size:17px;}
+.card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:12px; box-shadow:0 1px 2px rgba(60,50,20,.05);}
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px;}
+.stat{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px;}
+.stat .k{font-size:12.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; font-weight:700;}
+.stat .v{font-size:26px; font-weight:800; margin-top:2px;}
+.stat .s{font-size:13px; color:var(--muted); margin-top:2px;}
+label{display:block; font-size:13.5px; font-weight:600; color:var(--muted); margin:10px 0 4px;}
+input,select,textarea{width:100%; min-height:44px; padding:9px 10px; font-size:16px; border:1.5px solid var(--line); border-radius:9px; background:#fff; color:var(--ink); font-family:inherit;}
+textarea{min-height:70px;}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--ember2); border-color:var(--ember2);}
+.row{display:flex; gap:10px; flex-wrap:wrap;}
+.row > div{flex:1 1 140px;}
+button.btn{min-height:44px; padding:10px 18px; border:0; border-radius:9px; background:var(--ember); color:#fff; font-size:16px; font-weight:700; cursor:pointer;}
+button.btn:hover{background:var(--ember2);}
+button.btn.char{background:var(--char); color:#fff;}
+button.btn.ghost{background:var(--soft); color:var(--ink); border:1px solid var(--line);}
+button.btn.small{min-height:36px; padding:6px 12px; font-size:14px;min-height:40px;}
+button.btn.danger{background:var(--red);}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;}
+.listitem{border:1px solid var(--line); border-radius:12px; background:var(--card); padding:12px 14px; margin-bottom:10px; cursor:pointer;}
+.listitem:hover{border-color:var(--ember2);}
+.listitem .t{font-weight:800; font-size:16.5px;}
+.listitem .m{color:var(--muted); font-size:13.5px; margin-top:2px;}
+.badge{display:inline-block; padding:2px 9px; border-radius:20px; font-size:12px; font-weight:700; vertical-align:middle;}
+.badge.overdue{background:#f8e3e0; color:var(--red);}
+.badge.soon{background:#fbf0d2; color:#8a6408;}
+.badge.ok{background:#e2efdf; color:var(--green);}
+.badge.none{background:var(--soft); color:var(--muted);}
+.badge.hazard{background:var(--red); color:#fff;}
+.badge.attn{background:var(--amber); color:#fff;}
+.badge.paid{background:#e2efdf; color:var(--green);}
+.badge.owed{background:#f8e3e0; color:var(--red);}
+.mut{color:var(--muted);} .small{font-size:13.5px;}
+.msg{border-radius:9px; padding:10px 12px; margin:10px 0; font-size:14.5px; display:none;}
+.msg.err{background:#f8e3e0; color:var(--red); display:block;}
+.msg.good{background:#e2efdf; color:var(--green); display:block;}
+table.ck{width:100%; border-collapse:collapse; margin-top:6px;}
+table.ck td, table.ck th{padding:7px 6px; border-bottom:1px solid var(--line); vertical-align:top; text-align:left; font-size:14.5px;}
+table.ck th{font-size:12.5px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted);}
+table.ck select{min-height:38px; padding:5px 8px; font-size:14.5px;}
+.estrow{display:flex; gap:8px; margin-bottom:8px;}
+.estrow .d{flex:3 1 200px;} .estrow .a{flex:1 1 100px;} .estrow button{flex:0 0 auto;}
+.total-line{display:flex; justify-content:space-between; font-weight:800; font-size:17px; padding-top:8px; border-top:2px solid var(--line); margin-top:6px;}
+.searchbar{margin-bottom:12px;}
+.kv{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:6px 18px; font-size:15px;}
+.kv b{color:var(--muted); font-weight:600; font-size:13px; display:block; text-transform:uppercase; letter-spacing:.4px;}
+.helpbody{font-size:15px;} .helpbody h3{margin-top:20px;}
+#printSheet{display:none;}
+@media print{
+  body>*{display:none !important;}
+  body>#printSheet{display:block !important; color:#000; font-size:12.5px;}
+  #printSheet .ph{border-bottom:2.5px solid #000; padding-bottom:8px; margin-bottom:12px;}
+  #printSheet .ph .co{font-size:19px; font-weight:800;}
+  #printSheet h1{font-size:17px; margin:10px 0 4px;}
+  #printSheet h2{font-size:14px; margin:14px 0 4px; border-bottom:1px solid #999; padding-bottom:2px;}
+  #printSheet table{width:100%; border-collapse:collapse;}
+  #printSheet td,#printSheet th{border:1px solid #bbb; padding:4px 6px; text-align:left; font-size:12px;}
+  #printSheet .sig{display:flex; gap:30px; margin-top:26px;}
+  #printSheet .sig div{flex:1; border-top:1px solid #000; padding-top:3px; font-size:11.5px;}
+  #printSheet .tot{text-align:right; font-weight:800; font-size:14px;}
+}
+@media (max-width:640px){
+  .stat .v{font-size:22px;}
+  table.ck td, table.ck th{font-size:13.5px; padding:6px 4px;}
+  .estrow{flex-wrap:wrap;}
+}
+</style>
+</head>
+<body>
+<header class="app">
+  <div class="brand">Sweep<span class="flame">Book</span></div>
+  <div class="tag">Chimney sweep inspections, property records &amp; annual rebooking — no subscription, works offline</div>
+</header>
+<nav class="tabs" id="tabbar">
+  <button data-view="dashboard" class="active">Dashboard</button>
+  <button data-view="properties">Properties</button>
+  <button data-view="jobs">Jobs</button>
+  <button data-view="due">Due List</button>
+  <button data-view="settings">Settings &amp; Help</button>
+</nav>
+<main>
+  <!-- DASHBOARD -->
+  <section id="view-dashboard">
+    <h2 class="view-title">Dashboard</h2>
+    <div class="grid" id="dashStats"></div>
+    <h3>Due for annual service</h3>
+    <div id="dashDue"></div>
+    <h3>Recent jobs</h3>
+    <div id="dashRecent"></div>
+  </section>
+
+  <!-- PROPERTIES -->
+  <section id="view-properties" style="display:none">
+    <h2 class="view-title">Properties</h2>
+    <div class="searchbar"><input id="propSearch" type="search" placeholder="Search by customer, address, appliance…"></div>
+    <div class="btnrow" style="margin:0 0 12px"><button class="btn" id="btnNewProp">+ New Property</button></div>
+    <div id="propList"></div>
+  </section>
+
+  <!-- PROPERTY FORM -->
+  <section id="view-propform" style="display:none">
+    <h2 class="view-title" id="propFormTitle">New Property</h2>
+    <div class="card">
+      <div class="msg" id="propMsg"></div>
+      <div class="row">
+        <div><label>Customer name *</label><input id="pf_customer"></div>
+        <div><label>Phone</label><input id="pf_phone"></div>
+      </div>
+      <label>Property address *</label><input id="pf_address">
+      <label>Email</label><input id="pf_email">
+      <div class="row">
+        <div><label>Appliance / system</label>
+          <select id="pf_appliance">
+            <option>Open fireplace</option><option>Fireplace insert</option><option>Wood stove</option>
+            <option>Pellet stove</option><option>Furnace / boiler flue</option><option>Multiple systems</option><option>Other</option>
+          </select></div>
+        <div><label>Flue / liner type</label>
+          <select id="pf_flue">
+            <option>Clay tile liner</option><option>Stainless steel liner</option><option>Cast-in-place liner</option>
+            <option>Prefabricated metal chimney</option><option>Unlined masonry</option><option>Unknown</option>
+          </select></div>
+      </div>
+      <div class="row">
+        <div><label>Flue size</label><input id="pf_fluesize" placeholder='e.g. 8" × 12" or 6" round'></div>
+        <div><label>Chimneys on property</label><input inputmode="decimal" id="pf_chimneys" type="number" min="1" step="1" value="1"></div>
+      </div>
+      <label>Property notes (access, gate codes, liner history…)</label><textarea id="pf_notes"></textarea>
+      <div class="btnrow">
+        <button class="btn" id="btnSaveProp">Save Property</button>
+        <button class="btn ghost" id="btnCancelProp">Cancel</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROPERTY DETAIL -->
+  <section id="view-propdetail" style="display:none">
+    <h2 class="view-title" id="pdTitle">Property</h2>
+    <div class="card" id="pdInfo"></div>
+    <div class="btnrow" style="margin:0 0 12px">
+      <button class="btn" id="btnPdNewJob">+ New Job at This Property</button>
+      <button class="btn char" id="btnPdPrint">🖨 Print Property History</button>
+      <button class="btn ghost" id="btnPdEdit">Edit Property</button>
+      <button class="btn ghost" id="btnPdBack">← All Properties</button>
+    </div>
+    <h3>Service history</h3>
+    <div id="pdHistory"></div>
+    <div class="btnrow"><button class="btn danger" id="btnPdDelete">Delete Property &amp; Its Jobs</button></div>
+  </section>
+
+  <!-- JOBS -->
+  <section id="view-jobs" style="display:none">
+    <h2 class="view-title">Jobs &amp; Inspections</h2>
+    <div class="searchbar"><input id="jobSearch" type="search" placeholder="Search jobs by customer, address, type, findings…"></div>
+    <div class="btnrow" style="margin:0 0 12px"><button class="btn" id="btnNewJob">+ New Job</button></div>
+    <div id="jobList"></div>
+  </section>
+
+  <!-- JOB FORM -->
+  <section id="view-jobform" style="display:none">
+    <h2 class="view-title" id="jobFormTitle">New Job</h2>
+    <div class="card">
+      <div class="msg" id="jobMsg"></div>
+      <label>Property *</label><select id="jf_prop"></select>
+      <div class="row">
+        <div><label>Date *</label><input id="jf_date" type="date"></div>
+        <div><label>Job type *</label>
+          <select id="jf_type">
+            <option>Sweep</option><option>Level I Inspection</option><option>Level II Inspection</option>
+            <option>Sweep + Level I</option><option>Sweep + Level II</option><option>Repair</option><option>Estimate Visit</option>
+          </select></div>
+        <div><label>Technician</label><input id="jf_tech"></div>
+      </div>
+      <div class="row">
+        <div><label>Price charged ($)</label><input inputmode="decimal" id="jf_price" type="number" min="0" step="0.01" value="0"></div>
+        <div><label>Amount paid ($)</label><input inputmode="decimal" id="jf_paid" type="number" min="0" step="0.01" value="0"></div>
+        <div><label>Creosote grade observed</label>
+          <select id="jf_creosote">
+            <option value="">—</option><option>None</option><option>Stage 1 — light / powdery</option>
+            <option>Stage 2 — crunchy / flaky</option><option>Stage 3 — heavy glazed</option>
+          </select></div>
+      </div>
+      <div id="ckWrap">
+        <h3 id="ckTitle">Inspection checklist</h3>
+        <p class="small mut" id="ckNote"></p>
+        <table class="ck"><thead><tr><th style="width:55%">Item</th><th>Condition</th></tr></thead><tbody id="ckBody"></tbody></table>
+      </div>
+      <label>Findings (what you observed, in plain language for the customer)</label><textarea id="jf_findings"></textarea>
+      <label>Recommendations</label><textarea id="jf_recs"></textarea>
+      <h3>Repair estimate lines</h3>
+      <div id="estRows"></div>
+      <div class="btnrow" style="margin-top:4px"><button class="btn ghost small" id="btnAddEst" type="button">+ Add estimate line</button></div>
+      <div class="total-line"><span>Estimate total</span><span id="estTotal">$0.00</span></div>
+      <div class="row">
+        <div><label>Estimate status</label>
+          <select id="jf_eststatus"><option>None</option><option>Proposed</option><option>Accepted</option><option>Declined</option><option>Completed</option></select></div>
+      </div>
+      <label>Internal notes (not printed on the customer report)</label><textarea id="jf_notes"></textarea>
+      <div class="btnrow">
+        <button class="btn" id="btnSaveJob">Save Job</button>
+        <button class="btn ghost" id="btnCancelJob">Cancel</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- JOB DETAIL -->
+  <section id="view-jobdetail" style="display:none">
+    <h2 class="view-title" id="jdTitle">Job</h2>
+    <div class="card" id="jdInfo"></div>
+    <div class="btnrow" style="margin:0 0 12px">
+      <button class="btn char" id="btnJdPrint">🖨 Print Inspection Report</button>
+      <button class="btn ghost" id="btnJdEdit">Edit Job</button>
+      <button class="btn ghost" id="btnJdBack">← All Jobs</button>
+    </div>
+    <div id="jdBody"></div>
+    <div class="btnrow"><button class="btn danger" id="btnJdDelete">Delete Job</button></div>
+  </section>
+
+  <!-- DUE LIST -->
+  <section id="view-due" style="display:none">
+    <h2 class="view-title">Annual Due List — Rebooking</h2>
+    <p class="small mut">NFPA 211 calls for a chimney inspection every year. This list shows every property whose last sweep or inspection was 12+ months ago, plus those coming due in the next 45 days — work it top-down to fill the fall schedule before the rush does it for you.</p>
+    <div class="btnrow" style="margin:0 0 12px"><button class="btn char" id="btnPrintDue">🖨 Print Due List</button></div>
+    <div id="dueList"></div>
+  </section>
+
+  <!-- SETTINGS & HELP -->
+  <section id="view-settings" style="display:none">
+    <h2 class="view-title">Settings &amp; Help</h2>
+    <div class="card">
+      <h3 style="margin-top:0">Your company (prints on every report)</h3>
+      <div class="row">
+        <div><label>Company name</label><input id="cf_name"></div>
+        <div><label>Phone</label><input id="cf_phone"></div>
+      </div>
+      <div class="row">
+        <div><label>Email</label><input id="cf_email"></div>
+        <div><label>License / certification #</label><input id="cf_license"></div>
+      </div>
+      <label>Address</label><input id="cf_address">
+      <div class="btnrow"><button class="btn" id="btnSaveCompany">Save Company Info</button></div>
+      <div class="msg" id="coMsg"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Backup &amp; data</h3>
+      <p class="small">Your data lives only in this browser on this device. Export a backup regularly — it is the only way to move to a new phone or recover if the browser is cleared.</p>
+      <div class="btnrow">
+        <button class="btn char" id="btnExport">Export backup</button>
+        <button class="btn ghost" id="btnImportBtn">Import backup</button>
+        <input type="file" id="importFile" accept=".json,application/json" style="display:none">
+      </div>
+      <div class="msg" id="bkMsg"></div>
+      <div class="btnrow">
+        <button class="btn ghost" id="btnClearDemo">Clear Sample Data</button>
+        <button class="btn danger" id="btnErase">Erase Everything</button>
+      </div>
+    </div>
+    <div class="card helpbody">
+      <h3 style="margin-top:0">How SweepBook works</h3>
+      <p><b>Properties</b> are the permanent record: one per address, holding the flue type and size, the appliance, and access notes. Every visit is a <b>job</b> hung on that property, so next year's tech opens the property and sees the whole history — flue specs, creosote grade, findings, and what was quoted — before climbing the ladder.</p>
+      <p><b>Inspections</b> use structured checklists following the scope of NFPA 211 Level I (readily accessible portions) and Level II (adds accessible attic/crawl/basement areas, video scanning of the flue interior, liner integrity, and clearances of concealed portions). Rate each item OK, Attention, Hazard, or N/A. Hazards and attention items print at the top of the customer report summary.</p>
+      <p><b>The due list</b> counts a property as serviced by its most recent Sweep or Inspection job (repairs and estimate visits don't reset the annual clock). Annual due date = last service + 12 months.</p>
+      <p><b>Estimates</b> are line items on a job — add the repair lines with prices and the total figures itself. Print the inspection report and the estimate goes out on the same page the customer signs.</p>
+      <h3>Honest limits</h3>
+      <p>SweepBook is a record-keeping and documentation tool. The checklists follow the general scope of NFPA 211 Levels I and II as published, but they are not a substitute for the standard itself, for CSIA training/certification, or for your own judgment on site. It does not take photos (note photo file names in Findings), does not schedule or send reminders (the due list is yours to work), and does not sync between devices — backup export/import is the transfer path.</p>
+    </div>
+  <div id="legalSection"></div>
+</section>
+</main>
+<div id="printSheet"></div>
+<script>
+'use strict';
+/* ============ SweepBook — single-file offline app ============ */
+var LS_KEY='sweepbook_v1', BACKUP_TAG='sweepbook';
+var SERVICE_TYPES=['Sweep','Level I Inspection','Level II Inspection','Sweep + Level I','Sweep + Level II'];
+var ALL_TYPES=SERVICE_TYPES.concat(['Repair','Estimate Visit']);
+var RATINGS=['ok','attention','hazard','na'];
+var RATING_LABEL={ok:'OK',attention:'Attention',hazard:'Hazard',na:'N/A'};
+var CHECKLIST=[
+ {id:'firebox',lvl:1,label:'Firebox condition — brick, mortar joints, refractory panels'},
+ {id:'damper',lvl:1,label:'Damper — present, opens/closes fully, seals'},
+ {id:'smokechamber',lvl:1,label:'Smoke chamber — parging, cracks, offsets visible from below'},
+ {id:'fluevisible',lvl:1,label:'Flue — visible portions, obstructions, nesting, debris'},
+ {id:'capcrown',lvl:1,label:'Chimney cap & crown — cap present/secure, crown cracks or wash'},
+ {id:'flashing',lvl:1,label:'Flashing & counter-flashing — sealed, no lifting or gaps'},
+ {id:'masonry',lvl:1,label:'Exterior masonry — mortar joints, spalling, leaning, water damage'},
+ {id:'hearth',lvl:1,label:'Hearth protection & clearances to combustibles at opening'},
+ {id:'connector',lvl:1,label:'Appliance connector / thimble — condition, slope, joints (stove & furnace flues)'},
+ {id:'cleanout',lvl:1,label:'Ash dump & cleanout door — present, seals, accessible'},
+ {id:'atticcrawl',lvl:2,label:'Accessible attic / crawl space / basement areas inspected'},
+ {id:'videoscan',lvl:2,label:'Video scan of flue interior performed'},
+ {id:'liner',lvl:2,label:'Flue liner integrity — cracks, gaps, missing mortar, offsets (from scan)'},
+ {id:'concealed',lvl:2,label:'Clearances of concealed chimney portions verified'},
+ {id:'sizing',lvl:2,label:'Flue size appropriate for connected appliance(s)'},
+ {id:'structure',lvl:2,label:'Chimney structure & footing — settling, support, deterioration'}
+];
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
+function pad(n){return (n<10?'0':'')+n;}
+function todayISO(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function daysAgoISO(n){var d=new Date(); d.setDate(d.getDate()-n); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function validISODate(s){ if(typeof s!=='string') return false; var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s); if(!m) return false; var y=+m[1],mo=+m[2],da=+m[3]; if(mo<1||mo>12||da<1||da>31) return false; var d=new Date(Date.UTC(y,mo-1,da)); return d.getUTCFullYear()===y&&d.getUTCMonth()===mo-1&&d.getUTCDate()===da; }
+function addMonthsISO(iso,n){ var p=iso.split('-'); var y=+p[0],mo=+p[1],da=+p[2]; var t=new Date(Date.UTC(y,mo-1+n,1)); var ty=t.getUTCFullYear(),tm=t.getUTCMonth(); var last=new Date(Date.UTC(ty,tm+1,0)).getUTCDate(); var d=Math.min(da,last); return ty+'-'+pad(tm+1)+'-'+pad(d); }
+function daysBetween(a,b){ var pa=a.split('-'),pb=b.split('-'); var da=Date.UTC(+pa[0],+pa[1]-1,+pa[2]), db=Date.UTC(+pb[0],+pb[1]-1,+pb[2]); return Math.round((db-da)/86400000); }
+function fmtDate(iso){ if(!validISODate(iso)) return '—'; var p=iso.split('-'); var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return months[+p[1]-1]+' '+(+p[2])+', '+p[0]; }
+function fmtMoney(n){ n=+n||0; return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function num(v){ var n=parseFloat(v); return isFinite(n)&&n>0?n:0; }
+function clampNonNeg(v){ var n=parseFloat(v); if(!isFinite(n)||n<0) return 0; if(n>999999999) return 999999999; return n; }
+
+/* ============ State ============ */
+var state=null;
+function blankState(){ return {v:1,demo:false,company:{name:'',phone:'',email:'',license:'',address:''},properties:[],jobs:[]}; }
+function seedDemo(){
+  var s=blankState(); s.demo=true;
+  s.company={name:'Ridgeline Chimney Service (Sample)',phone:'(555) 014-2280',email:'office@ridgelinechimney.example',license:'CSIA Cert. #0000 — SAMPLE',address:'12 Depot St, Sampletown'};
+  var p1={id:'demo_p1',customer:'Margaret Ellison',address:'412 Hickory Lane',phone:'(555) 210-8841',email:'m.ellison@example.com',appliance:'Wood stove',flue:'Stainless steel liner',fluesize:'6" round',chimneys:1,notes:'Stove installed 2019. Gate code in file. Friendly dog.'};
+  var p2={id:'demo_p2',customer:'Dan & Priya Okafor',address:'88 Mill Creek Rd',phone:'(555) 733-0192',email:'',appliance:'Open fireplace',flue:'Clay tile liner',fluesize:'8" × 12"',chimneys:1,notes:'Burns oak most weekends in season.'};
+  var p3={id:'demo_p3',customer:'Robert Callahan',address:'1207 Summit Dr',phone:'(555) 490-6620',email:'rcallahan@example.com',appliance:'Fireplace insert',flue:'Clay tile liner',fluesize:'8" × 8"',chimneys:1,notes:'Steep roof — 32 ft ladder. Homeowner is selling in spring; report goes to the buyer too.'};
+  var p4={id:'demo_p4',customer:'The Hendersons',address:'5 Birchwood Ct',phone:'(555) 862-4473',email:'',appliance:'Furnace / boiler flue',flue:'Clay tile liner',fluesize:'8" × 8"',chimneys:1,notes:'Oil furnace flue only — no fireplace. Side-door access.'};
+  s.properties=[p1,p2,p3,p4];
+  s.jobs=[
+    {id:'demo_j1',propId:'demo_p1',date:daysAgoISO(770),type:'Sweep + Level I',tech:'Sam R.',price:225,paid:225,creosote:'Stage 1 — light / powdery',checklist:{firebox:'na',damper:'na',smokechamber:'na',fluevisible:'ok',capcrown:'attention',flashing:'ok',masonry:'ok',hearth:'na',connector:'ok',cleanout:'ok'},findings:'Light powdery creosote, swept clean. Crown has hairline cracks starting.',recs:'Watch the crown — plan on a crown wash reseal within a year or two.',estimate:[],estStatus:'None',notes:''},
+    {id:'demo_j2',propId:'demo_p1',date:daysAgoISO(410),type:'Sweep + Level I',tech:'Sam R.',price:225,paid:225,creosote:'Stage 1 — light / powdery',checklist:{firebox:'na',damper:'na',smokechamber:'na',fluevisible:'ok',capcrown:'attention',flashing:'ok',masonry:'ok',hearth:'na',connector:'ok',cleanout:'ok'},findings:'Normal stage 1 creosote for a season of stove use, swept clean. Stove connector joints tight. Crown cracks unchanged from last year.',recs:'Reseal the crown before another freeze cycle opens the cracks up.',estimate:[{desc:'Crown wash reseal',amt:325}],estStatus:'Proposed',notes:''},
+    {id:'demo_j3',propId:'demo_p2',date:daysAgoISO(335),type:'Sweep + Level I',tech:'Sam R.',price:195,paid:195,creosote:'Stage 2 — crunchy / flaky',checklist:{firebox:'ok',damper:'ok',smokechamber:'ok',fluevisible:'ok',capcrown:'ok',flashing:'attention',masonry:'ok',hearth:'ok',connector:'na',cleanout:'ok'},findings:'Stage 2 creosote throughout, heavier above the smoke chamber — consistent with weekend burning of less-seasoned oak. All removed. Flashing sealant is cracking on the uphill side.',recs:'Burn seasoned wood (under 20% moisture) and keep fires hot. Reseal flashing this year.',estimate:[{desc:'Flashing reseal',amt:145}],estStatus:'Proposed',notes:''},
+    {id:'demo_j4',propId:'demo_p3',date:daysAgoISO(60),type:'Level II Inspection',tech:'Sam R.',price:349,paid:349,creosote:'Stage 2 — crunchy / flaky',checklist:{firebox:'attention',damper:'ok',smokechamber:'attention',fluevisible:'attention',capcrown:'hazard',flashing:'ok',masonry:'attention',hearth:'ok',connector:'ok',cleanout:'ok',atticcrawl:'ok',videoscan:'ok',liner:'hazard',concealed:'attention',sizing:'ok',structure:'ok'},findings:'Video scan shows two cracked flue tiles and open mortar joints at approx. 14 ft and 21 ft. No chimney cap — evidence of water entry and creosote staining below the cracks. Firebox refractory panels are spalling. Smoke chamber parging is rough and thin in spots.',recs:'Do not use the insert until the flue is relined — cracked tiles and open joints can let heat and flue gases reach framing. Install a stainless liner, fit a cap, and repoint the smoke chamber during the reline.',estimate:[{desc:'Stainless steel reline, 6" insulated liner kit + labor',amt:2850},{desc:'Stainless chimney cap, installed',amt:185},{desc:'Crown repair and wash',amt:425}],estStatus:'Proposed',notes:'Buyer disclosure copy requested — print two reports.'},
+    {id:'demo_j5',propId:'demo_p4',date:daysAgoISO(150),type:'Sweep',tech:'Sam R.',price:179,paid:179,creosote:'',checklist:{},findings:'Moderate soot and scale from the oil flue, brushed and vacuumed. Draft is good.',recs:'Annual sweep again next year before heating season.',estimate:[],estStatus:'None',notes:''},
+    {id:'demo_j6',propId:'demo_p3',date:daysAgoISO(425),type:'Sweep + Level I',tech:'Dana K.',price:210,paid:210,creosote:'Stage 1 — light / powdery',checklist:{firebox:'ok',damper:'ok',smokechamber:'ok',fluevisible:'ok',capcrown:'attention',flashing:'ok',masonry:'ok',hearth:'ok',connector:'ok',cleanout:'ok'},findings:'Light creosote, swept clean. Crown beginning to weather.',recs:'Monitor crown at next visit; consider a cap.',estimate:[],estStatus:'None',notes:''}
+  ];
+  return s;
+}
+function sanitizeState(raw){
+  var s=blankState(); if(!raw||typeof raw!=='object') return s;
+  s.demo=!!raw.demo;
+  if(raw.company&&typeof raw.company==='object'){ ['name','phone','email','license','address'].forEach(function(k){ s.company[k]=typeof raw.company[k]==='string'?raw.company[k]:''; }); }
+  var props={};
+  if(Array.isArray(raw.properties)) raw.properties.forEach(function(p){
+    if(!p||typeof p!=='object'||typeof p.id!=='string'||!p.id) return;
+    var np={id:p.id,customer:typeof p.customer==='string'?p.customer:'',address:typeof p.address==='string'?p.address:'',
+      phone:typeof p.phone==='string'?p.phone:'',email:typeof p.email==='string'?p.email:'',
+      appliance:typeof p.appliance==='string'?p.appliance:'Other',flue:typeof p.flue==='string'?p.flue:'Unknown',
+      fluesize:typeof p.fluesize==='string'?p.fluesize:'',chimneys:Math.max(1,Math.min(99,parseInt(p.chimneys,10)||1)),
+      notes:typeof p.notes==='string'?p.notes:''};
+    props[np.id]=np; s.properties.push(np);
+  });
+  if(Array.isArray(raw.jobs)) raw.jobs.forEach(function(j){
+    if(!j||typeof j!=='object'||typeof j.id!=='string'||!j.id) return;
+    if(!props[j.propId]) return;
+    if(!validISODate(j.date)) return;
+    var nj={id:j.id,propId:j.propId,date:j.date,type:ALL_TYPES.indexOf(j.type)>=0?j.type:'Sweep',
+      tech:typeof j.tech==='string'?j.tech:'',price:clampNonNeg(j.price),paid:clampNonNeg(j.paid),
+      creosote:typeof j.creosote==='string'?j.creosote:'',checklist:{},findings:typeof j.findings==='string'?j.findings:'',
+      recs:typeof j.recs==='string'?j.recs:'',estimate:[],estStatus:['None','Proposed','Accepted','Declined','Completed'].indexOf(j.estStatus)>=0?j.estStatus:'None',
+      notes:typeof j.notes==='string'?j.notes:''};
+    if(j.checklist&&typeof j.checklist==='object') CHECKLIST.forEach(function(it){ var v=j.checklist[it.id]; if(RATINGS.indexOf(v)>=0) nj.checklist[it.id]=v; });
+    if(Array.isArray(j.estimate)) j.estimate.forEach(function(e){ if(e&&typeof e==='object') nj.estimate.push({desc:typeof e.desc==='string'?e.desc:'',amt:clampNonNeg(e.amt)}); });
+    s.jobs.push(nj);
+  });
+  s.legal = sanitizeLegal(raw.legal);
+  return s;
+}
+function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){} }
+function load(){
+  var raw=null;
+  try{ raw=localStorage.getItem(LS_KEY); }catch(e){}
+  if(raw===null||raw===undefined){ state=seedDemo(); save(); return; }
+  try{ var parsed=JSON.parse(raw); state=sanitizeState(parsed); save(); }
+  catch(e){ try{ localStorage.setItem(LS_KEY+'.corrupt', raw); }catch(e2){} state=seedDemo(); save(); }
+}
+/* ============ Derived data ============ */
+function propById(id){ for(var i=0;i<state.properties.length;i++) if(state.properties[i].id===id) return state.properties[i]; return null; }
+function jobsForProp(id){ return state.jobs.filter(function(j){return j.propId===id;}).sort(function(a,b){return a.date<b.date?1:(a.date>b.date?-1:0);}); }
+function lastService(propId){ var best=null; state.jobs.forEach(function(j){ if(j.propId===propId&&SERVICE_TYPES.indexOf(j.type)>=0){ if(!best||j.date>best) best=j.date; } }); return best; }
+function dueInfo(propId){ var ls=lastService(propId); if(!ls) return {status:'none',last:null,due:null,days:null}; var due=addMonthsISO(ls,12); var d=daysBetween(todayISO(),due); var status=d<0?'overdue':(d<=45?'soon':'ok'); return {status:status,last:ls,due:due,days:d}; }
+function estTotal(job){ return job.estimate.reduce(function(t,e){return t+(+e.amt||0);},0); }
+function balance(job){ return Math.max(0,(+job.price||0)-(+job.paid||0)); }
+function ckCounts(job){ var h=0,a=0; CHECKLIST.forEach(function(it){ var v=job.checklist[it.id]; if(v==='hazard')h++; else if(v==='attention')a++; }); return {hazard:h,attention:a}; }
+function jobLevel(jobType){ if(jobType==='Level II Inspection'||jobType==='Sweep + Level II') return 2; if(jobType==='Level I Inspection'||jobType==='Sweep + Level I') return 1; return 0; }
+function yearJobs(y){ return state.jobs.filter(function(j){return j.date.slice(0,4)===String(y);}); }
+/* ============ Navigation ============ */
+var currentView='dashboard', currentPropId=null, currentJobId=null, editingPropId=null, editingJobId=null;
+function showView(v){
+  currentView=v;
+  ['dashboard','properties','propform','propdetail','jobs','jobform','jobdetail','due','settings'].forEach(function(n){ $('view-'+n).style.display=(n===v)?'':'none'; });
+  var tabMap={propform:'properties',propdetail:'properties',jobform:'jobs',jobdetail:'jobs'};
+  var tab=tabMap[v]||v;
+  var btns=$('tabbar').querySelectorAll('button'); for(var i=0;i<btns.length;i++) btns[i].classList.toggle('active', btns[i].getAttribute('data-view')===tab);
+  window.scrollTo(0,0);
+}
+/* ============ Render: Dashboard ============ */
+function dueBadge(di){
+  if(di.status==='none') return '<span class="badge none">No service on record</span>';
+  if(di.status==='overdue') return '<span class="badge overdue">Overdue '+Math.abs(di.days)+'d — due '+fmtDate(di.due)+'</span>';
+  if(di.status==='soon') return '<span class="badge soon">Due in '+di.days+'d — '+fmtDate(di.due)+'</span>';
+  return '<span class="badge ok">Current — due '+fmtDate(di.due)+'</span>';
+}
+function renderDashboard(){
+  var y=new Date().getFullYear(); var yj=yearJobs(y);
+  var rev=yj.reduce(function(t,j){return t+(+j.price||0);},0);
+  var col=yj.reduce(function(t,j){return t+(+j.paid||0);},0);
+  var owed=state.jobs.reduce(function(t,j){return t+balance(j);},0);
+  var due=state.properties.map(function(p){return {p:p,di:dueInfo(p.id)};}).filter(function(x){return x.di.status==='overdue'||x.di.status==='soon'||x.di.status==='none';});
+  var overdueN=due.filter(function(x){return x.di.status==='overdue';}).length;
+  $('dashStats').innerHTML=
+    '<div class="stat"><div class="k">Properties</div><div class="v">'+state.properties.length+'</div><div class="s">permanent chimney records</div></div>'+
+    '<div class="stat"><div class="k">Jobs '+y+'</div><div class="v">'+yj.length+'</div><div class="s">'+fmtMoney(rev)+' billed</div></div>'+
+    '<div class="stat"><div class="k">Collected '+y+'</div><div class="v">'+fmtMoney(col)+'</div><div class="s">'+fmtMoney(owed)+' still owed, all years</div></div>'+
+    '<div class="stat"><div class="k">Due / overdue</div><div class="v">'+due.length+'</div><div class="s">'+overdueN+' overdue now</div></div>';
+  if(!due.length){ $('dashDue').innerHTML='<div class="card mut">Every property is current on its annual service. 🎉</div>'; }
+  else{
+    var sorted=due.slice().sort(function(a,b){ if(a.di.status==='none'&&b.di.status!=='none') return 1; if(b.di.status==='none'&&a.di.status!=='none') return -1; var da=a.di.due||'9999',db=b.di.due||'9999'; return da<db?-1:(da>db?1:0); });
+    $('dashDue').innerHTML=sorted.slice(0,5).map(function(x){
+      return '<div class="listitem" data-prop="'+esc(x.p.id)+'"><span class="t">'+esc(x.p.customer)+'</span> '+dueBadge(x.di)+'<div class="m">'+esc(x.p.address)+' · '+esc(x.p.appliance)+' · Last service: '+(x.di.last?fmtDate(x.di.last):'none on record')+'</div></div>';
+    }).join('')+(due.length>5?'<p class="small mut">…and '+(due.length-5)+' more on the Due List tab.</p>':'');
+  }
+  var recent=state.jobs.slice().sort(function(a,b){return a.date<b.date?1:(a.date>b.date?-1:0);}).slice(0,5);
+  $('dashRecent').innerHTML=recent.length?recent.map(jobListItem).join(''):'<div class="card mut">No jobs logged yet. Add a property, then log your first sweep or inspection.</div>';
+  bindPropClicks($('dashDue')); bindJobClicks($('dashRecent'));
+}
+function jobListItem(j){
+  var p=propById(j.propId); var c=ckCounts(j); var bal=balance(j);
+  var badges='';
+  if(c.hazard) badges+=' <span class="badge hazard">'+c.hazard+' hazard'+(c.hazard>1?'s':'')+'</span>';
+  if(c.attention) badges+=' <span class="badge attn">'+c.attention+' attention</span>';
+  if(bal>0) badges+=' <span class="badge owed">Owes '+fmtMoney(bal)+'</span>'; else if(j.price>0) badges+=' <span class="badge paid">Paid</span>';
+  return '<div class="listitem" data-job="'+esc(j.id)+'"><span class="t">'+esc(j.type)+'</span>'+badges+'<div class="m">'+fmtDate(j.date)+' · '+esc(p?p.customer:'(property deleted)')+' — '+esc(p?p.address:'')+' · '+fmtMoney(j.price)+(j.creosote?' · Creosote: '+esc(j.creosote):'')+'</div></div>';
+}
+function bindPropClicks(root){ if(!root) return; var els=root.querySelectorAll('[data-prop]'); for(var i=0;i<els.length;i++) els[i].addEventListener('click',function(){ openProperty(this.getAttribute('data-prop')); }); }
+function bindJobClicks(root){ if(!root) return; var els=root.querySelectorAll('[data-job]'); for(var i=0;i<els.length;i++) els[i].addEventListener('click',function(){ openJob(this.getAttribute('data-job')); }); }
+/* ============ Render: Properties ============ */
+function renderProperties(){
+  var q=($('propSearch').value||'').toLowerCase();
+  var list=state.properties.filter(function(p){ return !q||(p.customer+' '+p.address+' '+p.appliance+' '+p.flue).toLowerCase().indexOf(q)>=0; });
+  list.sort(function(a,b){ return a.customer.toLowerCase()<b.customer.toLowerCase()?-1:1; });
+  $('propList').innerHTML=list.length?list.map(function(p){
+    var di=dueInfo(p.id); var jobs=jobsForProp(p.id);
+    return '<div class="listitem" data-prop="'+esc(p.id)+'"><span class="t">'+esc(p.customer)+'</span> '+dueBadge(di)+'<div class="m">'+esc(p.address)+' · '+esc(p.appliance)+' · '+esc(p.flue)+(p.fluesize?', '+esc(p.fluesize):'')+' · '+jobs.length+' job'+(jobs.length===1?'':'s')+' on record</div></div>';
+  }).join(''):'<div class="card mut">'+(state.properties.length?'No properties match that search.':'No properties yet. Tap “+ New Property” to add your first chimney record.')+'</div>';
+  bindPropClicks($('propList'));
+}
+function openProperty(id){
+  var p=propById(id); if(!p) return; currentPropId=id;
+  var di=dueInfo(id);
+  $('pdTitle').textContent=p.customer;
+  $('pdInfo').innerHTML='<div class="kv">'+
+    '<div><b>Address</b>'+esc(p.address)+'</div><div><b>Phone</b>'+esc(p.phone||'—')+'</div><div><b>Email</b>'+esc(p.email||'—')+'</div>'+
+    '<div><b>Appliance</b>'+esc(p.appliance)+'</div><div><b>Flue / liner</b>'+esc(p.flue)+'</div><div><b>Flue size</b>'+esc(p.fluesize||'—')+'</div>'+
+    '<div><b>Chimneys</b>'+p.chimneys+'</div><div><b>Annual service</b>'+dueBadge(di)+'</div></div>'+
+    (p.notes?'<p class="small" style="margin:10px 0 0"><b>Notes:</b> '+esc(p.notes)+'</p>':'')+
+    '<p class="small mut" style="margin:8px 0 0">Last service: '+(di.last?fmtDate(di.last):'none on record')+(di.due?' · Next due: '+fmtDate(di.due):'')+'</p>';
+  var jobs=jobsForProp(id);
+  $('pdHistory').innerHTML=jobs.length?jobs.map(jobListItem).join(''):'<div class="card mut">No jobs at this property yet.</div>';
+  bindJobClicks($('pdHistory'));
+  showView('propdetail');
+}
+/* ============ Property form ============ */
+function openPropForm(id){
+  editingPropId=id||null;
+  $('propMsg').className='msg'; $('propMsg').textContent='';
+  var p=id?propById(id):null;
+  $('propFormTitle').textContent=p?'Edit Property':'New Property';
+  $('pf_customer').value=p?p.customer:''; $('pf_phone').value=p?p.phone:''; $('pf_address').value=p?p.address:'';
+  $('pf_email').value=p?p.email:''; $('pf_appliance').value=p?p.appliance:'Open fireplace'; $('pf_flue').value=p?p.flue:'Clay tile liner';
+  $('pf_fluesize').value=p?p.fluesize:''; $('pf_chimneys').value=p?p.chimneys:1; $('pf_notes').value=p?p.notes:'';
+  showView('propform');
+}
+function saveProperty(){
+  var customer=$('pf_customer').value.trim(), address=$('pf_address').value.trim();
+  if(!customer||!address){ $('propMsg').className='msg err'; $('propMsg').textContent='Customer name and property address are required.'; return; }
+  var data={customer:customer,address:address,phone:$('pf_phone').value.trim(),email:$('pf_email').value.trim(),
+    appliance:$('pf_appliance').value,flue:$('pf_flue').value,fluesize:$('pf_fluesize').value.trim(),
+    chimneys:Math.max(1,parseInt($('pf_chimneys').value,10)||1),notes:$('pf_notes').value.trim()};
+  if(editingPropId){ var p=propById(editingPropId); for(var k in data) p[k]=data[k]; }
+  else{ data.id=uid(); state.properties.push(data); editingPropId=data.id; }
+  save(); renderProperties(); openProperty(editingPropId);
+}
+/* ============ Render: Jobs ============ */
+function renderJobs(){
+  var q=($('jobSearch').value||'').toLowerCase();
+  var list=state.jobs.filter(function(j){ var p=propById(j.propId); var hay=(j.type+' '+j.findings+' '+j.recs+' '+(p?p.customer+' '+p.address:'')); return !q||hay.toLowerCase().indexOf(q)>=0; });
+  list.sort(function(a,b){return a.date<b.date?1:(a.date>b.date?-1:0);});
+  $('jobList').innerHTML=list.length?list.map(jobListItem).join(''):'<div class="card mut">'+(state.jobs.length?'No jobs match that search.':'No jobs yet. Tap “+ New Job” to log a sweep, inspection, or repair.')+'</div>';
+  bindJobClicks($('jobList'));
+}
+function openJob(id){
+  var j=null; for(var i=0;i<state.jobs.length;i++) if(state.jobs[i].id===id) j=state.jobs[i];
+  if(!j) return; currentJobId=id;
+  var p=propById(j.propId); var c=ckCounts(j); var bal=balance(j);
+  $('jdTitle').textContent=j.type+' — '+fmtDate(j.date);
+  $('jdInfo').innerHTML='<div class="kv">'+
+    '<div><b>Customer</b>'+esc(p?p.customer:'—')+'</div><div><b>Address</b>'+esc(p?p.address:'—')+'</div>'+
+    '<div><b>Date</b>'+fmtDate(j.date)+'</div><div><b>Technician</b>'+esc(j.tech||'—')+'</div>'+
+    '<div><b>Price</b>'+fmtMoney(j.price)+'</div><div><b>Paid</b>'+fmtMoney(j.paid)+'</div>'+
+    '<div><b>Balance due</b>'+(bal>0?'<span class="up" style="color:var(--red);font-weight:700">'+fmtMoney(bal)+'</span>':'$0.00')+'</div>'+
+    '<div><b>Creosote</b>'+esc(j.creosote||'—')+'</div></div>';
+  var html='';
+  var lvl=jobLevel(j.type);
+  if(lvl>0){
+    html+='<div class="card"><h3 style="margin-top:0">Inspection checklist — Level '+lvl+'</h3><p class="small mut">'+c.hazard+' hazard'+(c.hazard===1?'':'s')+', '+c.attention+' attention item'+(c.attention===1?'':'s')+'</p><table class="ck"><thead><tr><th style="width:70%">Item</th><th>Condition</th></tr></thead><tbody>';
+    CHECKLIST.forEach(function(it){ if(it.lvl>lvl) return; var v=j.checklist[it.id]; if(!v) return; var lbl=RATING_LABEL[v]; var style=v==='hazard'?'color:var(--red);font-weight:700':(v==='attention'?'color:#8a6408;font-weight:700':'');
+      html+='<tr><td>'+esc(it.label)+'</td><td style="'+style+'">'+lbl+'</td></tr>'; });
+    html+='</tbody></table></div>';
+  }
+  if(j.findings) html+='<div class="card"><h3 style="margin-top:0">Findings</h3><p style="white-space:pre-wrap;margin:0">'+esc(j.findings)+'</p></div>';
+  if(j.recs) html+='<div class="card"><h3 style="margin-top:0">Recommendations</h3><p style="white-space:pre-wrap;margin:0">'+esc(j.recs)+'</p></div>';
+  if(j.estimate.length){
+    html+='<div class="card"><h3 style="margin-top:0">Repair estimate — '+esc(j.estStatus)+'</h3>'+j.estimate.map(function(e){ return '<div class="total-line" style="border:0;font-weight:400;font-size:15px"><span>'+esc(e.desc)+'</span><span>'+fmtMoney(e.amt)+'</span></div>'; }).join('')+'<div class="total-line"><span>Total</span><span>'+fmtMoney(estTotal(j))+'</span></div></div>';
+  }
+  if(j.notes) html+='<div class="card"><h3 style="margin-top:0">Internal notes</h3><p style="white-space:pre-wrap;margin:0">'+esc(j.notes)+'</p></div>';
+  $('jdBody').innerHTML=html;
+  showView('jobdetail');
+}
+/* ============ Job form ============ */
+function estRowHTML(desc,amt){
+  return '<div class="estrow"><div class="d"><input class="est-desc" placeholder="Repair description" value="'+esc(desc||'')+'"></div><div class="a"><input inputmode="decimal" class="est-amt" type="number" min="0" step="0.01" placeholder="0.00" value="'+(amt!=null&&amt!==''?amt:'')+'"></div><button class="btn ghost small est-del" type="button">✕</button></div>';
+}
+function bindEstRows(){
+  var rows=$('estRows').querySelectorAll('.estrow');
+  for(var i=0;i<rows.length;i++){
+    rows[i].querySelector('.est-del').addEventListener('click',function(){ this.parentNode.remove(); updateEstTotal(); });
+    rows[i].querySelector('.est-amt').addEventListener('input',updateEstTotal);
+  }
+}
+function collectEstimate(){
+  var out=[]; var rows=$('estRows').querySelectorAll('.estrow');
+  for(var i=0;i<rows.length;i++){ out.push({desc:rows[i].querySelector('.est-desc').value.trim(), amt:num(rows[i].querySelector('.est-amt').value)}); }
+  return out;
+}
+function updateEstTotal(){ var t=collectEstimate().reduce(function(s,e){return s+e.amt;},0); $('estTotal').textContent=fmtMoney(t); }
+var ckCache={};
+function renderChecklistForm(level,existing){
+  if(existing!==undefined){ ckCache={}; for(var k in existing) ckCache[k]=existing[k]; }
+  var body=$('ckBody'); body.innerHTML='';
+  CHECKLIST.forEach(function(it){
+    if(it.lvl>level) return;
+    var tr=document.createElement('tr');
+    var td1=document.createElement('td'); td1.textContent=it.label+(it.lvl===2?' (Level II)':'');
+    var td2=document.createElement('td');
+    var sel=document.createElement('select'); sel.setAttribute('data-ck',it.id);
+    var o0=document.createElement('option'); o0.value=''; o0.textContent='—'; sel.appendChild(o0);
+    RATINGS.forEach(function(r){ var o=document.createElement('option'); o.value=r; o.textContent=RATING_LABEL[r]; sel.appendChild(o); });
+    sel.value=ckCache[it.id]||'';
+    td2.appendChild(sel); tr.appendChild(td1); tr.appendChild(td2); body.appendChild(tr);
+  });
+  $('ckWrap').style.display=level>0?'':'none';
+  $('ckNote').textContent=level===2?'Level II includes all Level I items plus the Level II additions (marked). Rate only what you actually inspected.':(level===1?'Rate only what you actually inspected — leave the rest on —.':'');
+}
+function mergeChecklistFromDOM(){
+  var sels=$('ckBody').querySelectorAll('select[data-ck]');
+  for(var i=0;i<sels.length;i++){ var id=sels[i].getAttribute('data-ck'); if(sels[i].value) ckCache[id]=sels[i].value; else delete ckCache[id]; }
+}
+function collectChecklist(){
+  mergeChecklistFromDOM();
+  var out={}; for(var k in ckCache) if(ckCache[k]) out[k]=ckCache[k];
+  return out;
+}
+function fillPropSelect(sel,selectedId){
+  sel.innerHTML='';
+  state.properties.slice().sort(function(a,b){return a.customer.toLowerCase()<b.customer.toLowerCase()?-1:1;}).forEach(function(p){
+    var o=document.createElement('option'); o.value=p.id; o.textContent=p.customer+' — '+p.address; sel.appendChild(o);
+  });
+  if(selectedId) sel.value=selectedId;
+}
+function openJobForm(jobId,presetPropId){
+  editingJobId=jobId||null;
+  $('jobMsg').className='msg'; $('jobMsg').textContent='';
+  var j=null; if(jobId){ for(var i=0;i<state.jobs.length;i++) if(state.jobs[i].id===jobId) j=state.jobs[i]; }
+  $('jobFormTitle').textContent=j?'Edit Job':'New Job';
+  fillPropSelect($('jf_prop'), j?j.propId:(presetPropId||null));
+  $('jf_date').value=j?j.date:todayISO();
+  $('jf_type').value=j?j.type:'Sweep + Level I';
+  $('jf_tech').value=j?j.tech:''; $('jf_price').value=j?j.price:0; $('jf_paid').value=j?j.paid:0;
+  $('jf_creosote').value=j?j.creosote:'';
+  $('jf_findings').value=j?j.findings:''; $('jf_recs').value=j?j.recs:'';
+  $('jf_eststatus').value=j?j.estStatus:'None'; $('jf_notes').value=j?j.notes:'';
+  $('estRows').innerHTML=(j&&j.estimate.length)?j.estimate.map(function(e){return estRowHTML(e.desc,e.amt);}).join(''):estRowHTML('','');
+  bindEstRows(); updateEstTotal();
+  renderChecklistForm(jobLevel($('jf_type').value), j?j.checklist:{});
+  showView('jobform');
+}
+function onTypeChange(){
+  var keep=collectChecklist();
+  renderChecklistForm(jobLevel($('jf_type').value), keep);
+}
+function saveJob(){
+  var propId=$('jf_prop').value;
+  if(!propId||!propById(propId)){ $('jobMsg').className='msg err'; $('jobMsg').textContent='Pick a property first — add one on the Properties tab if the list is empty.'; return; }
+  var date=$('jf_date').value;
+  if(!validISODate(date)){ $('jobMsg').className='msg err'; $('jobMsg').textContent='Enter a valid date.'; return; }
+  var est=collectEstimate().filter(function(e){ return e.desc||e.amt>0; });
+  var estStatus=$('jf_eststatus').value;
+  if(!est.length) estStatus='None'; else if(estStatus==='None') estStatus='Proposed';
+  var data={propId:propId,date:date,type:$('jf_type').value,tech:$('jf_tech').value.trim(),
+    price:num($('jf_price').value),paid:num($('jf_paid').value),creosote:$('jf_creosote').value,
+    checklist:collectChecklist(),findings:$('jf_findings').value.trim(),recs:$('jf_recs').value.trim(),
+    estimate:est,estStatus:estStatus,notes:$('jf_notes').value.trim()};
+  var saveLvl=jobLevel(data.type);
+  CHECKLIST.forEach(function(it){ if(it.lvl>saveLvl) delete data.checklist[it.id]; });
+  if(editingJobId){ var j=null; for(var i=0;i<state.jobs.length;i++) if(state.jobs[i].id===editingJobId) j=state.jobs[i]; for(var k in data) j[k]=data[k]; }
+  else{ data.id=uid(); state.jobs.push(data); editingJobId=data.id; }
+  save(); renderJobs(); openJob(editingJobId);
+}
+/* ============ Due list ============ */
+function dueEntry(x){
+  var p=x.p, di=x.di;
+  var line=di.status==='none'?'No sweep or inspection on record — get the first one booked.':('Last service '+fmtDate(di.last)+' · '+(di.status==='overdue'?'<b style="color:var(--red)">'+Math.abs(di.days)+' days overdue</b>':'due '+fmtDate(di.due)+' (in '+di.days+' days)'));
+  return '<div class="listitem" data-prop="'+esc(p.id)+'"><span class="t">'+esc(p.customer)+'</span> '+dueBadge(di)+'<div class="m">'+esc(p.address)+(p.phone?' · '+esc(p.phone):'')+'<br>'+line+'</div></div>';
+}
+function renderDue(){
+  var items=state.properties.map(function(p){return {p:p,di:dueInfo(p.id)};});
+  var overdue=items.filter(function(x){return x.di.status==='overdue';}).sort(function(a,b){return a.di.due<b.di.due?-1:1;});
+  var soon=items.filter(function(x){return x.di.status==='soon';}).sort(function(a,b){return a.di.due<b.di.due?-1:1;});
+  var none=items.filter(function(x){return x.di.status==='none';});
+  var ok=items.filter(function(x){return x.di.status==='ok';});
+  var html='';
+  html+='<h3>Overdue ('+overdue.length+')</h3>'+(overdue.length?overdue.map(dueEntry).join(''):'<div class="card mut">Nobody is overdue. 🎉</div>');
+  html+='<h3>Due within 45 days ('+soon.length+')</h3>'+(soon.length?soon.map(dueEntry).join(''):'<div class="card mut">Nothing coming due in the next 45 days.</div>');
+  html+='<h3>No service on record ('+none.length+')</h3>'+(none.length?none.map(dueEntry).join(''):'<div class="card mut">Every property has at least one service on record.</div>');
+  html+='<h3>Current ('+ok.length+')</h3>'+(ok.length?ok.map(function(x){ return '<div class="listitem" data-prop="'+esc(x.p.id)+'"><span class="t">'+esc(x.p.customer)+'</span> '+dueBadge(x.di)+'<div class="m">'+esc(x.p.address)+' · Last service '+fmtDate(x.di.last)+'</div></div>'; }).join(''):'<div class="card mut">—</div>');
+  $('dueList').innerHTML=html;
+  bindPropClicks($('dueList'));
+}
+/* ============ Print ============ */
+function companyHeaderHTML(){
+  var c=state.company;
+  return '<div class="ph"><div class="co">'+esc(c.name||'Chimney Service')+'</div><div>'+esc([c.address,c.phone,c.email].filter(Boolean).join(' · '))+'</div>'+(c.license?'<div>'+esc(c.license)+'</div>':'')+'</div>';
+}
+function printJobReport(jobId){
+  var j=null; for(var i=0;i<state.jobs.length;i++) if(state.jobs[i].id===jobId) j=state.jobs[i];
+  if(!j) return; var p=propById(j.propId); var c=ckCounts(j); var lvl=jobLevel(j.type); var bal=balance(j);
+  var html=companyHeaderHTML();
+  html+='<h1>'+esc(j.type)+' Report</h1><div>'+fmtDate(j.date)+(j.tech?' · Technician: '+esc(j.tech):'')+'</div>';
+  html+='<h2>Property</h2><table><tr><td style="width:30%"><b>Customer</b></td><td>'+esc(p?p.customer:'')+'</td></tr><tr><td><b>Address</b></td><td>'+esc(p?p.address:'')+'</td></tr><tr><td><b>Appliance</b></td><td>'+esc(p?p.appliance:'')+'</td></tr><tr><td><b>Flue / liner</b></td><td>'+esc(p?p.flue:'')+(p&&p.fluesize?', '+esc(p.fluesize):'')+'</td></tr></table>';
+  if(lvl>0){
+    html+='<h2>Inspection summary</h2><div>'+c.hazard+' hazard item'+(c.hazard===1?'':'s')+', '+c.attention+' item'+(c.attention===1?'':'s')+' needing attention'+(j.creosote?', creosote grade: '+esc(j.creosote):'')+'</div>';
+    html+='<table><tr><th style="width:72%">Item</th><th>Condition</th></tr>';
+    CHECKLIST.forEach(function(it){ if(it.lvl>lvl) return; var v=j.checklist[it.id]; if(!v) return; html+='<tr><td>'+esc(it.label)+'</td><td>'+RATING_LABEL[v]+'</td></tr>'; });
+    html+='</table>';
+  } else if(j.creosote){ html+='<h2>Service summary</h2><div>Creosote grade observed: '+esc(j.creosote)+'</div>'; }
+  if(j.findings) html+='<h2>Findings</h2><div style="white-space:pre-wrap">'+esc(j.findings)+'</div>';
+  if(j.recs) html+='<h2>Recommendations</h2><div style="white-space:pre-wrap">'+esc(j.recs)+'</div>';
+  if(j.estimate.length){
+    html+='<h2>Repair estimate — '+esc(j.estStatus)+'</h2><table><tr><th style="width:75%">Work</th><th>Amount</th></tr>';
+    j.estimate.forEach(function(e){ html+='<tr><td>'+esc(e.desc)+'</td><td>'+fmtMoney(e.amt)+'</td></tr>'; });
+    html+='</table><div class="tot">Estimate total: '+fmtMoney(estTotal(j))+'</div>';
+  }
+  html+='<h2>Charges</h2><table><tr><td style="width:75%">Price</td><td>'+fmtMoney(j.price)+'</td></tr><tr><td>Paid</td><td>'+fmtMoney(j.paid)+'</td></tr><tr><td><b>Balance due</b></td><td><b>'+fmtMoney(bal)+'</b></td></tr></table>';
+  html+='<div class="sig"><div>Technician signature &amp; date</div><div>Customer signature &amp; date</div></div>';
+  html+='<p style="font-size:10.5px;margin-top:14px">This report documents the condition of the readily accessible portions of the chimney system (and, for a Level II inspection, the additional areas listed) as observed on the date above. Conditions can change; hidden or inaccessible areas are not covered by this report.</p>';
+  $('printSheet').innerHTML=html; window.print();
+}
+function printPropertyHistory(propId){
+  var p=propById(propId); if(!p) return; var jobs=jobsForProp(propId); var di=dueInfo(propId);
+  var html=companyHeaderHTML();
+  html+='<h1>Chimney Record — '+esc(p.customer)+'</h1><div>'+esc(p.address)+' · '+esc(p.appliance)+' · '+esc(p.flue)+(p.fluesize?', '+esc(p.fluesize):'')+'</div>';
+  html+='<div>Last service: '+(di.last?fmtDate(di.last):'none on record')+' · Annual due: '+(di.due?fmtDate(di.due):'—')+'</div>';
+  if(p.notes) html+='<div style="margin-top:6px"><b>Notes:</b> '+esc(p.notes)+'</div>';
+  html+='<h2>Service history</h2><table><tr><th>Date</th><th>Type</th><th>Creosote</th><th>Findings summary</th><th>Price</th></tr>';
+  jobs.forEach(function(j){ html+='<tr><td>'+fmtDate(j.date)+'</td><td>'+esc(j.type)+'</td><td>'+esc(j.creosote||'—')+'</td><td>'+esc((j.findings||'').slice(0,140))+'</td><td>'+fmtMoney(j.price)+'</td></tr>'; });
+  html+='</table>';
+  $('printSheet').innerHTML=html; window.print();
+}
+function printDueList(){
+  var items=state.properties.map(function(p){return {p:p,di:dueInfo(p.id)};}).filter(function(x){return x.di.status!=='ok';});
+  items.sort(function(a,b){ var da=a.di.due||'9999-99',db=b.di.due||'9999-99'; return da<db?-1:(da>db?1:0); });
+  var html=companyHeaderHTML();
+  html+='<h1>Annual Due List — '+fmtDate(todayISO())+'</h1><table><tr><th>Customer</th><th>Address</th><th>Phone</th><th>Last service</th><th>Due</th><th>Status</th></tr>';
+  items.forEach(function(x){ html+='<tr><td>'+esc(x.p.customer)+'</td><td>'+esc(x.p.address)+'</td><td>'+esc(x.p.phone||'')+'</td><td>'+(x.di.last?fmtDate(x.di.last):'none')+'</td><td>'+(x.di.due?fmtDate(x.di.due):'—')+'</td><td>'+(x.di.status==='overdue'?'Overdue '+Math.abs(x.di.days)+'d':(x.di.status==='soon'?'Due in '+x.di.days+'d':'No record'))+'</td></tr>'; });
+  html+='</table>';
+  $('printSheet').innerHTML=html; window.print();
+}
+/* ============ Backup ============ */
+function exportBackup(){
+  var payload={tag:BACKUP_TAG,v:1,exported:todayISO(),state:state};
+  var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='sweepbook-backup-'+todayISO()+'.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(a.href); },2000);
+  $('bkMsg').className='msg good'; $('bkMsg').textContent='Backup downloaded.';
+}
+function importBackupText(text){
+  var payload=null;
+  try{ payload=JSON.parse(text); }catch(e){ $('bkMsg').className='msg err'; $('bkMsg').textContent='That file doesn’t parse as JSON — nothing was imported.'; return; }
+  if(!payload||payload.tag!==BACKUP_TAG||!payload.state){ $('bkMsg').className='msg err'; $('bkMsg').textContent='That is not a SweepBook backup — nothing was imported.'; return; }
+  state=sanitizeState(payload.state); save();
+  fillCompanyForm(); renderAll();
+  $('bkMsg').className='msg good'; $('bkMsg').textContent='Backup imported: '+state.properties.length+' properties, '+state.jobs.length+' jobs.';
+}
+/* ============ Settings ============ */
+function fillCompanyForm(){ var c=state.company; $('cf_name').value=c.name; $('cf_phone').value=c.phone; $('cf_email').value=c.email; $('cf_license').value=c.license; $('cf_address').value=c.address; }
+function renderAll(){ renderDashboard(); renderProperties(); renderJobs(); renderDue(); }
+/* ============ Wire up ============ */
+function init(){
+  load();
+  var btns=$('tabbar').querySelectorAll('button');
+  for(var i=0;i<btns.length;i++) btns[i].addEventListener('click',function(){ var v=this.getAttribute('data-view'); if(v==='properties') renderProperties(); if(v==='jobs') renderJobs(); if(v==='due') renderDue(); if(v==='dashboard') renderDashboard(); showView(v); });
+  $('propSearch').addEventListener('input',renderProperties);
+  $('jobSearch').addEventListener('input',renderJobs);
+  $('btnNewProp').addEventListener('click',function(){ openPropForm(null); });
+  $('btnSaveProp').addEventListener('click',saveProperty);
+  $('btnCancelProp').addEventListener('click',function(){ if(currentPropId&&propById(currentPropId)) openProperty(currentPropId); else { renderProperties(); showView('properties'); } });
+  $('btnPdNewJob').addEventListener('click',function(){ openJobForm(null,currentPropId); });
+  $('btnPdEdit').addEventListener('click',function(){ openPropForm(currentPropId); });
+  $('btnPdBack').addEventListener('click',function(){ renderProperties(); showView('properties'); });
+  $('btnPdPrint').addEventListener('click',function(){ printPropertyHistory(currentPropId); });
+  $('btnPdDelete').addEventListener('click',function(){
+    if(!confirm('Delete this property and ALL its jobs? This cannot be undone.')) return;
+    state.jobs=state.jobs.filter(function(j){return j.propId!==currentPropId;});
+    state.properties=state.properties.filter(function(p){return p.id!==currentPropId;});
+    currentPropId=null; save(); renderAll(); showView('properties');
+  });
+  $('btnNewJob').addEventListener('click',function(){ openJobForm(null,null); });
+  $('jf_type').addEventListener('change',onTypeChange);
+  $('btnAddEst').addEventListener('click',function(){ var d=document.createElement('div'); d.innerHTML=estRowHTML('',''); $('estRows').appendChild(d.firstChild); bindEstRows(); });
+  $('btnSaveJob').addEventListener('click',saveJob);
+  $('btnCancelJob').addEventListener('click',function(){ if(currentJobId) openJob(currentJobId); else { renderJobs(); showView('jobs'); } });
+  $('btnJdEdit').addEventListener('click',function(){ openJobForm(currentJobId,null); });
+  $('btnJdBack').addEventListener('click',function(){ renderJobs(); showView('jobs'); });
+  $('btnJdPrint').addEventListener('click',function(){ printJobReport(currentJobId); });
+  $('btnJdDelete').addEventListener('click',function(){
+    if(!confirm('Delete this job record? This cannot be undone.')) return;
+    state.jobs=state.jobs.filter(function(j){return j.id!==currentJobId;});
+    currentJobId=null; save(); renderAll(); showView('jobs');
+  });
+  $('btnPrintDue').addEventListener('click',printDueList);
+  $('btnSaveCompany').addEventListener('click',function(){
+    state.company={name:$('cf_name').value.trim(),phone:$('cf_phone').value.trim(),email:$('cf_email').value.trim(),license:$('cf_license').value.trim(),address:$('cf_address').value.trim()};
+    save(); $('coMsg').className='msg good'; $('coMsg').textContent='Company info saved.';
+  });
+  $('btnExport').addEventListener('click',exportBackup);
+  $('btnImportBtn').addEventListener('click',function(){ $('importFile').click(); });
+  $('importFile').addEventListener('change',function(){
+    var f=this.files&&this.files[0]; if(!f) return;
+    var r=new FileReader(); r.onload=function(){ importBackupText(String(r.result||'')); }; r.readAsText(f); this.value='';
+  });
+  $('btnClearDemo').addEventListener('click',function(){
+    if(!state.demo){ $('bkMsg').className='msg err'; $('bkMsg').textContent='No sample data to clear — the samples were already removed.'; return; }
+    state.properties=state.properties.filter(function(p){return p.id.indexOf('demo_')!==0;});
+    state.jobs=state.jobs.filter(function(j){return j.id.indexOf('demo_')!==0&&propById(j.propId);});
+    if(state.company.name.indexOf('(Sample)')>=0) state.company={name:'',phone:'',email:'',license:'',address:''};
+    state.demo=false; save(); fillCompanyForm(); renderAll();
+    $('bkMsg').className='msg good'; $('bkMsg').textContent='Sample data cleared. Your own records were kept.';
+  });
+  $('btnErase').addEventListener('click',function(){
+    if(!confirm('Erase EVERYTHING — all properties, jobs, and company info? This cannot be undone.')) return;
+    state=blankState(); save(); fillCompanyForm(); renderAll(); showView('dashboard');
+    $('bkMsg').className='msg good'; $('bkMsg').textContent='Everything erased. The book is empty.';
+  });
+  fillCompanyForm(); renderAll(); showView('dashboard');
+}
+document.addEventListener('DOMContentLoaded',init);
+/* Test hook (invisible): lets the QA harness read state */
+window.SB={get state(){return state;},dueInfo:dueInfo,estTotal:estTotal,balance:balance,ckCounts:ckCounts,addMonthsISO:addMonthsISO,validISODate:validISODate,sanitizeState:sanitizeState,lastService:lastService};
+
+/* ================= Legal — Terms of Use acceptance (catalog pattern v1.0) ================= */
+var TERMS_VERSION = "1.0";
+var LEGAL_APP_NAME = "SweepBook";
+var LEGAL_HAS_DISCLAIMER = true;
+var LEGAL_TERMS_HTML = "<h3>Terms of Use \u2014 White Wolf Digital Apps</h3><p><b>Version 1.0 (DRAFT \u2014 pending attorney review)</b></p><p><b>Seller: White Wolf Tree Service LLC, selling digital products under the name \"White Wolf Digital\"</b></p><p><b>Contact: whitewolfoklahoma@gmail.com</b></p><h4>1. What you're buying</h4><p>Our apps (including ForgeFit AI, ForgeKitchen, TreeBid Pro, SnowBid,</p><p>WashPrice Pro, RoofSquares, JobProfit Tracker, PastureLedger, and the other</p><p>titles sold under White Wolf Digital) are single-file software tools. When</p><p>you buy one, you are buying a <b>license to use the file</b>, not ownership of</p><p>the software itself.</p><h4>2. Your license</h4><ul><li>You may use the app for your own personal or business work.</li><li>You may open it on your own devices (phone, tablet, computer) and move your</li></ul><p>  own data between them using the app's built-in backup/export tools.</p><ul><li>You may <b>not</b> resell, redistribute, give away, upload, or share the app</li></ul><p>  file (or a copy of it) with anyone else \u2014 including posting it online,</p><p>  bundling it with other products, or selling access to it.</p><ul><li>You may <b>not</b> claim the app as your own work, remove its branding or</li></ul><p>  notices, or use it to build a competing product for resale.</p><ul><li>One purchase = one buyer. A business purchase covers the buyer and their</li></ul><p>  own employees using it for that business's work; it does not cover other</p><p>  businesses.</p><h4>3. Your data stays yours \u2014 and stays on your device</h4><ul><li>The current versions of our apps run <b>entirely on your device</b>. They have</li></ul><p>  no accounts, no sign-in, no analytics, and they collect, transmit, and store</p><p>  <b>none</b> of your information on any server. We never see your data.</p><ul><li>Your records are stored in your browser/app storage on your device. **You</li></ul><p>  are responsible for backing them up** using the app's export tools. If you</p><p>  clear your browser data, lose your device, or uninstall the app, your</p><p>  records may be permanently lost, and we cannot recover them \u2014 we never had</p><p>  a copy.</p><ul><li>Files you export (backups, quotes, PDFs) are under your control. Where you</li></ul><p>  store or send them is up to you.</p><h4>4. Estimates are tools, not guarantees</h4><p>Every number our apps produce \u2014 bids, prices, costs, calorie targets,</p><p>projections, schedules, totals \u2014 is an **estimate generated from the</p><p>information you enter and the settings you choose**. Outputs are aids for</p><p>your own judgment, not guarantees of price, profit, outcome, or result. You</p><p>are responsible for checking any output before relying on it (see also the</p><p>disclaimer that applies to your app: Health Disclaimer for fitness/nutrition</p><p>apps, Estimator Disclaimer for contractor tools). If an input is wrong, the</p><p>output will be wrong.</p><h4>5. Acceptable use</h4><p>Don't use the apps to break the law, infringe anyone's rights, or</p><p>misrepresent quotes, invoices, or records to your own customers. For the</p><p>fitness apps, the guardrails in the app (healthy-rate limits, calorie floor)</p><p>are part of the product \u2014 don't treat the app as a way around them.</p><h4>6. Provided \"as is\"</h4><p>The apps are provided **\"as is\" and \"as available,\" without warranties of</p><p>any kind**, express or implied \u2014 including merchantability, fitness for a</p><p>particular purpose, accuracy of calculations, and uninterrupted or</p><p>error-free operation \u2014 to the maximum extent allowed by law. Software has</p><p>bugs; browsers change; we work to fix problems but do not promise any app is</p><p>error-free or will work on every device or browser forever.</p><h4>7. Limitation of liability</h4><p>To the maximum extent allowed by law:</p><ul><li>We are **not liable for indirect, incidental, special, or consequential</li></ul><p>  damages** \u2014 including lost profits, lost or mispriced jobs, lost data, or</p><p>  business interruption \u2014 arising from use of the apps.</p><ul><li>Our total liability for any claim connected to an app is limited to the</li></ul><p>  <b>amount you paid for that app</b>.</p><ul><li>Nothing in these terms limits liability that cannot legally be limited.</li></ul><h4>8. Refunds</h4><p>Refunds are handled **by the storefront you bought from, under that</p><p>storefront's policy** \u2014 Gumroad's refund policy for Gumroad purchases, and</p><p>Google Play's refund policy for Play purchases. These terms do not add to,</p><p>replace, or override the storefront's refund rules. If a file is defective</p><p>and won't open, contact us at whitewolfoklahoma@gmail.com and we'll fix or</p><p>replace the file.</p><h4>9. Updates and changes to these terms</h4><ul><li>We may release updated versions of an app. Updates may add, change, or</li></ul><p>  remove features.</p><ul><li>We may update these terms. The version you agreed to is recorded in the</li></ul><p>  app (version number and date) at first-run acceptance. If terms change,</p><p>  the app may ask you to accept the new version once on next open. Updated</p><p>  terms apply going forward, not retroactively.</p><ul><li>If you don't agree to an updated version of the terms, stop using the app.</li></ul><h4>10. Governing law</h4><p>These terms are governed by the laws of the <b>State of Oklahoma</b>, USA.</p><p>(Attorney to confirm governing law and venue before publication.)</p><h4>11. Contact</h4><p>White Wolf Tree Service LLC (White Wolf Digital) \u2014</p><p>whitewolfoklahoma@gmail.com.</p><h4>CONNECTED FEATURES \u2014 takes effect only when these features ship</h4><p>*The sections below apply only to future connected features (device sync via</p><p>Health Connect, AI voice logging, and the AI Goal Preview in ForgeFit). They</p><p>do not apply to the current offline versions, which never transmit data.*</p><ul><li><b>Opt-in only.</b> Connected features are off by default. Each one asks for</li></ul><p>  your separate, explicit consent \u2014 on its own consent screen, in plain</p><p>  language \u2014 before anything leaves your device. Declining never disables</p><p>  the app's offline features.</p><ul><li><b>What gets sent.</b> Only what the consent screen names, only when you use</li></ul><p>  the feature: for example, a meal description (text, or audio only if cloud</p><p>  transcription is on) for AI voice logging, or the single photo you choose</p><p>  for an AI Goal Preview.</p><ul><li><b>No retention by us.</b> Our relay service passes your request to the named</li></ul><p>  AI provider and keeps nothing \u2014 no copies of your photos, audio,</p><p>  transcripts, or entries are stored on our servers. Provider handling is</p><p>  described on the consent screen and in the Privacy Policy.</p><ul><li><b>Health data stays on the device.</b> Device sync (Health Connect) reads</li></ul><p>  your health data on your phone and stores it in the app on your phone. It</p><p>  is not uploaded to us.</p><ul><li><b>Allowances.</b> Some connected features run on third-party AI services we</li></ul><p>  pay for per use, so they may include a monthly allowance described in the</p><p>  app (for example, a set number of AI previews or voice entries per month),</p><p>  with optional additional credits. Allowances and pricing will be shown in</p><p>  the app before you use the feature; they are not a subscription unless the</p><p>  app says so in plain words.</p><ul><li><b>Permissions.</b> Connected features may request device permissions (such</li></ul><p>  as Health Connect access or the microphone) at the moment you first use</p><p>  them. You can revoke permissions any time in your device settings; the</p><p>  related feature will simply stop working.</p>";
+var LEGAL_DISCLAIMER_HTML = "<h3>Estimator Disclaimer \u2014 Contractor &amp; Trade Tools</h3><p>**Applies to: TreeBid Pro, SnowBid, WashPrice Pro, RoofSquares, JobProfit</p><p>Tracker, FieldForms Toolkit, PaintPro, FenceDeck, MarketMaker, and the other</p><p>estimating/pricing tools sold under White Wolf Digital \u2014 including bundles</p><p>that contain them.**</p><h4>Estimating aids, not finished quotes</h4><ul><li>These apps are <b>estimating and record-keeping aids</b>. Every bid, price,</li></ul><p>  cost, measurement, and total they produce is an **estimate based on the</p><p>  information and rates you enter**.</p><ul><li>**You \u2014 the business owner \u2014 are responsible for verifying everything</li></ul><p>  before you quote a customer:** measurements and quantities, site</p><p>  conditions, your current material and labor costs, your rates and margins,</p><p>  taxes, permit and license requirements, disposal rules, and any contract</p><p>  terms.</p><ul><li>Default rates, presets, and sample data included in the apps are starting</li></ul><p>  points only. They are not market prices, not industry standards, and not</p><p>  a recommendation of what you should charge.</p><ul><li>A saved quote keeps the prices in effect when you created it (price</li></ul><p>  snapshot). Changing your presets later does not change saved quotes \u2014</p><p>  and a saved quote is still your responsibility to review before sending.</p><h4>Specific tools</h4><ul><li><b>TreeBid Pro:</b> tree work is dangerous and site-specific. Difficulty</li></ul><p>  factors and presets cannot see the actual tree, lean, rot, targets, or</p><p>  access. Inspect every job in person before final pricing. The \"Invoice</p><p>  with Wave\" feature is an open-and-paste handoff \u2014 TreeBid does not</p><p>  connect to Wave, and the invoice you send from Wave is yours.</p><ul><li><b>RoofSquares / measurement tools:</b> confirm roof measurements and pitch</li></ul><p>  in person or by your usual method before ordering materials.</p><ul><li><b>SnowBid / seasonal tools:</b> route times, snowfall amounts, and service</li></ul><p>  pricing vary by storm and site; seasonal contracts are your agreement</p><p>  with your customer, on your terms.</p><ul><li><b>JobProfit Tracker:</b> profit figures depend on the costs you enter.</li></ul><p>  The app is not accounting or tax software and does not replace your</p><p>  bookkeeper or accountant.</p><h4>Bottom line</h4><p>If an output and your judgment disagree, trust your judgment \u2014 then fix the</p><p>input. We are not responsible for jobs won, lost, or mispriced based on app</p><p>outputs, within the limits of the Terms of Use.</p>";
+(function(){
+  var lst = document.createElement("style");
+  lst.textContent = "@media print{ #legalOverlay{ display:none !important; } }";
+  document.head.appendChild(lst);
+})();
+function sanitizeLegal(v){
+  if(!v || typeof v !== "object") return null;
+  if(typeof v.termsVersion !== "string" || typeof v.acceptedDate !== "string") return null;
+  return { termsVersion: v.termsVersion.slice(0, 10), acceptedDate: v.acceptedDate.slice(0, 40), disclaimerShown: !!v.disclaimerShown };
+}
+function legalRecord(){
+  try{ var s = state; return (s && s.legal) ? sanitizeLegal(s.legal) : null; }catch(e){ return null; }
+}
+function legalVersionCmp(a, b){
+  var pa = String(a).split("."), pb = String(b).split(".");
+  for(var i = 0; i < 3; i++){ var d = (parseInt(pa[i], 10) || 0) - (parseInt(pb[i], 10) || 0); if(d) return d; }
+  return 0;
+}
+function legalAcceptLine(){
+  var rec = legalRecord();
+  if(rec && rec.acceptedDate) return "You agreed to Terms v" + rec.termsVersion + " on " + rec.acceptedDate.slice(0, 10) + ".";
+  return "No Terms acceptance is recorded on this device yet \u2014 the current Terms will be shown for your agreement.";
+}
+function legalSectionHTML(){
+  var h = '<div style="border-top:2px solid rgba(127,127,127,.35);margin-top:20px;padding-top:14px;">'
+    + '<h2>Legal</h2>'
+    + '<p>' + legalAcceptLine() + '</p>'
+    + '<h3>Terms of Use (v' + TERMS_VERSION + ')</h3>'
+    + '<div style="max-height:340px;overflow-y:auto;border:1px solid rgba(127,127,127,.4);border-radius:8px;padding:10px 14px;font-size:14px;line-height:1.55;">' + LEGAL_TERMS_HTML + '</div>';
+  if(LEGAL_HAS_DISCLAIMER){
+    h += '<h3>Estimator Disclaimer</h3>'
+      + '<div style="max-height:260px;overflow-y:auto;border:1px solid rgba(127,127,127,.4);border-radius:8px;padding:10px 14px;font-size:14px;line-height:1.55;">' + LEGAL_DISCLAIMER_HTML + '</div>';
+  }
+  h += '<h3>Privacy</h3>'
+    + '<p>This app collects no data. It has no accounts, no sign-in, no analytics, and no server \u2014 everything you enter is stored only on this device, in this browser\u2019s storage, and nothing is transmitted anywhere. Files you export (backups, quotes, prints) are under your control. You are responsible for backing up your records with the app\u2019s export tools.</p>'
+    + '<p>Sold by White Wolf Tree Service LLC (White Wolf Digital) \u2014 whitewolfoklahoma@gmail.com</p>'
+    + '</div>';
+  return h;
+}
+function legalFillSection(){
+  var el = document.getElementById("legalSection");
+  if(!el) return;
+  var sig = legalAcceptLine();
+  if(el.getAttribute("data-legal-filled") === sig) return;
+  el.innerHTML = legalSectionHTML(); el.setAttribute("data-legal-filled", sig);
+}
+function legalRefreshSection(){
+  var el = document.getElementById("legalSection");
+  if(el){ el.innerHTML = legalSectionHTML(); el.setAttribute("data-legal-filled", legalAcceptLine()); }
+}
+function legalShowOverlay(isUpdate){
+  if(document.getElementById("legalOverlay")) return;
+  var ov = document.createElement("div");
+  ov.id = "legalOverlay";
+  ov.setAttribute("style", "position:fixed;inset:0;z-index:99999;background:rgba(8,10,14,.74);overflow-y:auto;padding:20px 12px;display:flex;align-items:flex-start;justify-content:center;");
+  var discBtn = LEGAL_HAS_DISCLAIMER ? '<button type="button" id="legalReadDisc" style="min-height:44px;padding:10px 14px;border-radius:10px;border:1px solid #9aa4b2;background:#ffffff;color:#1c2733;font-size:15px;cursor:pointer;">Read the Estimator Disclaimer</button>' : '';
+  var checkLabel = LEGAL_HAS_DISCLAIMER ? "I have read the disclaimer and I agree to the Terms of Use" : "I have read and I agree to the Terms of Use";
+  ov.innerHTML = '<div style="background:#ffffff;color:#1c2733;max-width:560px;width:100%;border-radius:14px;padding:22px 20px;box-shadow:0 18px 50px rgba(0,0,0,.45);font-size:15px;line-height:1.55;">'
+    + '<h2 style="margin:0 0 6px;font-size:21px;">' + LEGAL_APP_NAME + ' \u2014 Terms of Use</h2>'
+    + (isUpdate ? '<p style="background:#fdf3d7;border:1px solid #e4cf8a;border-radius:8px;padding:8px 10px;"><b>Our terms were updated (v' + TERMS_VERSION + ').</b></p>' : '')
+    + '<p style="font-size:16px;"><b>Your data stays on your device.</b><br><b>Estimates are aids, not guarantees.</b><br><b>You\'re responsible for checking outputs before you rely on them.</b></p>'
+    + '<p>The full Terms' + (LEGAL_HAS_DISCLAIMER ? ' and Disclaimer are' : ' are') + ' one tap away, now and any time in Settings \u2192 Legal.</p>'
+    + '<div id="legalReader" style="display:none;max-height:44vh;overflow-y:auto;border:1px solid #d5dbe3;border-radius:10px;padding:10px 14px;margin:10px 0;font-size:14px;"></div>'
+    + '<p style="display:flex;gap:8px;flex-wrap:wrap;"><button type="button" id="legalReadTerms" style="min-height:44px;padding:10px 14px;border-radius:10px;border:1px solid #9aa4b2;background:#ffffff;color:#1c2733;font-size:15px;cursor:pointer;">Read the full Terms</button>' + discBtn + '</p>'
+    + '<label style="display:flex;gap:10px;align-items:flex-start;margin:12px 0;cursor:pointer;"><input type="checkbox" id="legalCheck" style="width:22px;height:22px;min-width:22px;margin-top:1px;cursor:pointer;"><span>' + checkLabel + '</span></label>'
+    + '<button type="button" id="legalAgree" disabled style="min-height:52px;width:100%;border:0;border-radius:10px;background:#1f5fa8;color:#ffffff;font-size:17px;font-weight:700;cursor:pointer;opacity:.55;">I Agree</button>'
+    + '<p style="font-size:13px;color:#5a6675;margin-bottom:0;">Your records stay loaded behind this screen and are never deleted or locked, whether or not you agree now.</p>'
+    + '</div>';
+  document.body.appendChild(ov);
+  var reader = ov.querySelector("#legalReader");
+  var showing = "";
+  function toggleReader(kind){
+    if(showing === kind){ reader.style.display = "none"; showing = ""; return; }
+    reader.innerHTML = kind === "terms" ? LEGAL_TERMS_HTML : LEGAL_DISCLAIMER_HTML;
+    reader.style.display = "block"; showing = kind;
+    reader.scrollTop = 0;
+  }
+  ov.querySelector("#legalReadTerms").addEventListener("click", function(){ toggleReader("terms"); });
+  var db = ov.querySelector("#legalReadDisc");
+  if(db) db.addEventListener("click", function(){ toggleReader("disc"); });
+  var legalChk = ov.querySelector("#legalCheck");
+  var legalAgreeBtn = ov.querySelector("#legalAgree");
+  legalChk.addEventListener("change", function(){ legalAgreeBtn.disabled = !legalChk.checked; legalAgreeBtn.style.opacity = legalChk.checked ? "1" : ".55"; });
+  legalAgreeBtn.addEventListener("click", function(){
+    if(!legalChk.checked) return;
+    try{ state.legal = { termsVersion: TERMS_VERSION, acceptedDate: new Date().toISOString(), disclaimerShown: LEGAL_HAS_DISCLAIMER }; save(); }catch(e){}
+    if(ov.parentNode) ov.parentNode.removeChild(ov);
+    legalRefreshSection();
+  });
+}
+function legalInit(){
+  legalFillSection();
+  var rec = legalRecord();
+  if(rec && legalVersionCmp(rec.termsVersion, TERMS_VERSION) >= 0) return;
+  legalShowOverlay(!!rec);
+}
+if(typeof MutationObserver !== "undefined"){
+  var legalObs = new MutationObserver(function(){ legalFillSection(); });
+  legalObs.observe(document.documentElement, { childList: true, subtree: true });
+}
+if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", function(){ setTimeout(legalInit, 30); });
+else setTimeout(legalInit, 30);
+
+</script>
+</body>
+</html>
